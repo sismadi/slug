@@ -2,110 +2,99 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<title>LMS Static Generator</title>
+<title>GitHub File Creator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
-body {
-  font-family: system-ui, sans-serif;
-  background: #f4f6f8;
-  padding: 24px;
-}
-h1 { margin-bottom: 8px; }
+body { font-family: system-ui; background:#f4f6f8; padding:24px }
 input, textarea, button {
-  width: 100%;
-  padding: 10px;
-  margin: 8px 0;
-}
-pre {
-  background: #111827;
-  color: #e5e7eb;
-  padding: 16px;
-  overflow: auto;
+  width:100%; padding:10px; margin:6px 0;
 }
 button {
-  background: #2563eb;
-  color: white;
-  border: 0;
-  cursor: pointer;
+  background:#24292e; color:#fff; border:0; cursor:pointer;
 }
-small { color: #6b7280; }
+pre { background:#111827; color:#e5e7eb; padding:12px }
+small { color:#6b7280 }
 </style>
 </head>
 <body>
 
-<h1>LMS Static Generator</h1>
-<p>Generator struktur <b>GitHub Pages friendly</b></p>
+<h2>GitHub File Creator</h2>
 
-<label>Nama Kursus</label>
-<input id="title" placeholder="Pemrograman Web">
+<label>GitHub Token</label>
+<input id="token" placeholder="ghp_xxxxx">
 
-<label>Slug Kursus (pakai -)</label>
-<input id="slug" placeholder="pemrograman-web">
+<label>Owner</label>
+<input id="owner" placeholder="username">
 
-<label>Deskripsi</label>
-<textarea id="desc" placeholder="Belajar dasar pemrograman web"></textarea>
+<label>Repository</label>
+<input id="repo" placeholder="repo-name">
 
-<button onclick="generate()">Generate</button>
+<label>File Path</label>
+<input id="path" placeholder="course/pemrograman-web/index.html">
 
-<h3>📁 Struktur Folder</h3>
-<pre id="tree"></pre>
+<label>Commit Message</label>
+<input id="message" value="create file">
 
-<h3>📄 index.html (root)</h3>
-<pre id="root"></pre>
+<label>File Content</label>
+<textarea id="content" rows="10">
+<!doctype html>
+<html><body><h1>Hello LMS</h1></body></html>
+</textarea>
 
-<h3>📄 course/pemrograman-web/index.html</h3>
-<pre id="course"></pre>
+<button onclick="createFile()">Create / Update File</button>
+
+<pre id="result"></pre>
 
 <small>
-Salin file & folder ini ke repo GitHub kamu lalu aktifkan GitHub Pages.
+⚠️ Token hanya disimpan di browser kamu.
 </small>
 
 <script>
-function generate() {
-  const title = titleEl.value || "Pemrograman Web";
-  const slug = slugEl.value || "pemrograman-web";
-  const desc = descEl.value || "Deskripsi kursus";
+async function createFile() {
+  const token = tokenEl.value.trim();
+  const owner = ownerEl.value.trim();
+  const repo = repoEl.value.trim();
+  const path = pathEl.value.trim();
+  const message = msgEl.value;
+  const content = btoa(unescape(encodeURIComponent(contentEl.value)));
 
-  tree.textContent = `
-piawai-lms/
-├── index.html
-└── course/
-    └── ${slug}/
-        └── index.html
-`.trim();
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${path}`;
 
-  root.textContent = `<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>Piawai LMS</title>
-</head>
-<body>
-<h1>Daftar Kursus</h1>
-<a href="/course/${slug}/">${title}</a>
-</body>
-</html>`;
+  // cek file sudah ada?
+  let sha = null;
+  const check = await fetch(url, {
+    headers: { Authorization: `token ${token}` }
+  });
 
-  course.textContent = `<!doctype html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>${title}</title>
-</head>
-<body>
-<h1>${title}</h1>
-<p>${desc}</p>
-<a href="/">← Kembali</a>
-</body>
-</html>`;
+  if (check.ok) {
+    const data = await check.json();
+    sha = data.sha;
+  }
+
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Authorization: `token ${token}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      message,
+      content,
+      sha
+    })
+  });
+
+  const result = await res.json();
+  resultEl.textContent = JSON.stringify(result, null, 2);
 }
 
-const titleEl = document.getElementById("title");
-const slugEl = document.getElementById("slug");
-const descEl = document.getElementById("desc");
-const tree = document.getElementById("tree");
-const root = document.getElementById("root");
-const course = document.getElementById("course");
+const tokenEl = document.getElementById("token");
+const ownerEl = document.getElementById("owner");
+const repoEl = document.getElementById("repo");
+const pathEl = document.getElementById("path");
+const msgEl = document.getElementById("message");
+const contentEl = document.getElementById("content");
+const resultEl = document.getElementById("result");
 </script>
 
 </body>
