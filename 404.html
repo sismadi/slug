@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <title>Piawai LMS</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Piawai LMS - Platform pembelajaran pemrograman modern">
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f4f6f8;
+      color: #1f2937;
+    }
+    header {
+      background: #0f172a;
+      color: #fff;
+      padding: 16px 24px;
+      font-weight: bold;
+    }
+    main {
+      padding: 24px;
+      max-width: 960px;
+      margin: auto;
+    }
+    .course-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 10px rgba(0,0,0,.05);
+    }
+    .badge {
+      display: inline-block;
+      background: #2563eb;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .desc {
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+    .btn {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 6px;
+      background: #0ea5e9;
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  Piawai • Learning Management System
+</header>
+
+<main id="app">
+  <!-- dynamic -->
+</main>
+
+<footer>
+  © 2026 Piawai Akademi
+</footer>
+
+<script>
+/* ==============================
+   DATA INTERNAL (underscore)
+================================ */
+const courses = {
+  pemrograman_web: {
+    id: 1,
+    slug: "pemrograman-web",
+    title: "Pemrograman Web",
+    desc: "Belajar dasar hingga lanjutan pengembangan web",
+    instructor: "Piawai Akademi"
+  },
+  desain_web: {
+    id: 2,
+    slug: "desain-web",
+    title: "Desain Web",
+    desc: "UI/UX dan desain antarmuka modern",
+    instructor: "Al Fatih F. Sismadi"
+  },
+  pemrograman_mobile: {
+    id: 3,
+    slug: "pemrograman-mobile",
+    title: "Pemrograman Mobile",
+    desc: "Bangun aplikasi Android & Flutter",
+    instructor: "Al Fatih F. Sismadi"
+  }
+};
+
+/* ==============================
+   SLUG → KEY MAPPING
+================================ */
+const slugMap = {};
+Object.keys(courses).forEach(key => {
+  slugMap[courses[key].slug] = key;
+});
+
+/* ==============================
+   ROUTER SEDERHANA
+================================ */
+function getSlugFromPath() {
+  const parts = location.pathname.replace(/\/$/, "").split("/");
+  return parts.length > 1 ? parts.pop() : null;
+}
+
+/* ==============================
+   RENDER
+================================ */
+const app = document.getElementById("app");
+const slug = getSlugFromPath();
+const key = slugMap[slug];
+
+if (key) {
+  // ===== DETAIL COURSE =====
+  const c = courses[key];
+  document.title = c.title + " | Piawai LMS";
+
+  app.innerHTML = `
+    <div class="course-card">
+      <span class="badge">COURSE</span>
+      <div class="title">${c.title}</div>
+      <div class="desc">${c.desc}</div>
+      <p><strong>Instruktur:</strong> ${c.instructor}</p>
+      <a class="btn" href="/">← Kembali ke daftar kursus</a>
+    </div>
+  `;
+} else {
+  // ===== LIST COURSE =====
+  app.innerHTML = Object.values(courses).map(c => `
+    <div class="course-card">
+      <span class="badge">COURSE</span>
+      <div class="title">${c.title}</div>
+      <div class="desc">${c.desc}</div>
+      <a class="btn" href="/course/${c.slug}/">Lihat Detail</a>
+    </div>
+  `).join("");
+}
+</script>
+
+</body>
+</html>
