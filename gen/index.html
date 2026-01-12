@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<title>LMS Static Generator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {
+  font-family: system-ui, sans-serif;
+  background: #f4f6f8;
+  padding: 24px;
+}
+h1 { margin-bottom: 8px; }
+input, textarea, button {
+  width: 100%;
+  padding: 10px;
+  margin: 8px 0;
+}
+pre {
+  background: #111827;
+  color: #e5e7eb;
+  padding: 16px;
+  overflow: auto;
+}
+button {
+  background: #2563eb;
+  color: white;
+  border: 0;
+  cursor: pointer;
+}
+small { color: #6b7280; }
+</style>
+</head>
+<body>
+
+<h1>LMS Static Generator</h1>
+<p>Generator struktur <b>GitHub Pages friendly</b></p>
+
+<label>Nama Kursus</label>
+<input id="title" placeholder="Pemrograman Web">
+
+<label>Slug Kursus (pakai -)</label>
+<input id="slug" placeholder="pemrograman-web">
+
+<label>Deskripsi</label>
+<textarea id="desc" placeholder="Belajar dasar pemrograman web"></textarea>
+
+<button onclick="generate()">Generate</button>
+
+<h3>📁 Struktur Folder</h3>
+<pre id="tree"></pre>
+
+<h3>📄 index.html (root)</h3>
+<pre id="root"></pre>
+
+<h3>📄 course/pemrograman-web/index.html</h3>
+<pre id="course"></pre>
+
+<small>
+Salin file & folder ini ke repo GitHub kamu lalu aktifkan GitHub Pages.
+</small>
+
+<script>
+function generate() {
+  const title = titleEl.value || "Pemrograman Web";
+  const slug = slugEl.value || "pemrograman-web";
+  const desc = descEl.value || "Deskripsi kursus";
+
+  tree.textContent = `
+piawai-lms/
+├── index.html
+└── course/
+    └── ${slug}/
+        └── index.html
+`.trim();
+
+  root.textContent = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Piawai LMS</title>
+</head>
+<body>
+<h1>Daftar Kursus</h1>
+<a href="/course/${slug}/">${title}</a>
+</body>
+</html>`;
+
+  course.textContent = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>${title}</title>
+</head>
+<body>
+<h1>${title}</h1>
+<p>${desc}</p>
+<a href="/">← Kembali</a>
+</body>
+</html>`;
+}
+
+const titleEl = document.getElementById("title");
+const slugEl = document.getElementById("slug");
+const descEl = document.getElementById("desc");
+const tree = document.getElementById("tree");
+const root = document.getElementById("root");
+const course = document.getElementById("course");
+</script>
+
+</body>
+</html>
